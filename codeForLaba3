@@ -1,0 +1,285 @@
+using System;
+using System.Diagnostics;
+
+class Program
+{
+    public static void Main(string[] args)
+    {
+        bool uslovie = false;
+        while (!uslovie)
+        {
+            uslovie = Konsol(uslovie);
+        }
+    }
+
+
+    static double Proverka(string chislo)
+    {
+        double number;
+        Console.WriteLine(chislo);
+
+        while (!double.TryParse(Console.ReadLine(), out number))
+        {
+            Console.WriteLine("Ошибка ввода! Пожалуйста, введите корректное число.");
+            Console.WriteLine(chislo);
+        }
+
+        return number;
+    }
+
+    static void Igra()
+    {
+
+        double a = Proverka("Введите значение первого аргумента (a): ");
+        double b = Proverka("Введите значение второго аргумента (b): ");
+
+        if (Math.Cos(b) >= 0)
+        {
+            double correctAnswer = Vychislenia(a, b);
+            Ugadaika(correctAnswer);
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: косинус меньше нуля!");
+        }
+    }
+
+    static double Vychislenia(double a, double b)
+    {
+        double p = Math.PI;
+        double res = Math.Pow(Math.Sin(3 * p / 4 + a / 3), 2) + Math.Pow(Math.Cos(b), 0.5);
+        return Math.Round(res, 2);
+    }
+
+    static void Ugadaika(double correctAnswer)
+    {
+        int popytka = 3;
+
+        while (popytka > 0)
+        {
+            Console.WriteLine($"У вас осталось попыток: {popytka} ");
+            Console.WriteLine("Вы считаете, что результат: ");
+
+            if (double.TryParse(Console.ReadLine(), out double resultUser1))
+            {
+                double resultUser = Math.Round(resultUser1, 2);
+                if (resultUser == correctAnswer)
+                {
+                    Console.WriteLine("Вы молодец!");
+                    return;
+                }
+                else
+                {
+                    popytka -= 1;
+
+                    if (popytka > 0)
+                    {
+                        Console.WriteLine("Неверно, попробуйте еще.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Попытки закончились. Правильный ответ: {correctAnswer}");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Некорректный ввод числа! Попробуйте снова.");
+            }
+        }
+    }
+
+    static bool Over(bool uslovie)
+    {
+        Console.Write("Вы действительно хотите выйти? (д/н): ");
+        string answer = Console.ReadLine();
+        if (answer != null && answer.ToLower() == "д")
+        {
+            uslovie = true;
+            Console.WriteLine("Дос!");
+        }
+        if (answer != "д" && answer != "н")
+            Console.WriteLine("Вы ввели не то");
+
+        return uslovie;
+    }
+
+    static void Information()
+    {
+        Console.WriteLine("ФИО: Зиновьева Дарья Сергеевна");
+        Console.WriteLine("№ группы: 6102-090301D");
+    }
+
+    public static void Massiv()
+    {
+        int size = DlinaMassiva();
+        int[] massiv = GenerateArray(size);
+        PrintArray(massiv);
+
+        int[] sortedGnom = ArrayGnomych(massiv);
+        Console.WriteLine("\nгномья сортировка:");
+        PrintArray(sortedGnom);
+
+        TimeSpan gnomicTime = ArrayGnomychTime(massiv);
+        Console.WriteLine($"Время Гномьей сортировки: {gnomicTime.TotalSeconds:F7} секунд");
+
+        int[] sortedShell = ArrayShell(massiv);
+        Console.WriteLine("\ncортировка Шелла:");
+        PrintArray(sortedShell);
+
+        TimeSpan shellTime = ArrayShellTime(massiv);
+        Console.WriteLine($"Время сортировки Шелла: {shellTime.TotalSeconds:F7} секунд");
+
+        double timeDifference = Math.Abs((gnomicTime - shellTime).TotalSeconds);
+        Console.WriteLine($"\nРазница во времени выполнения: {timeDifference:F7} секунд");
+    }
+
+    public static int DlinaMassiva()
+    {
+        int size;
+        Console.WriteLine("Введите размер массива: ");
+        string sizeS = Console.ReadLine();
+        while (!int.TryParse(sizeS, out size) || size <= 0)
+        {
+            Console.WriteLine("Ошибка! Введите число от 1 до 10:");
+            sizeS = Console.ReadLine();
+        }
+        return size;
+    }
+
+    public static int[] GenerateArray(int size)
+    {
+        int[] Mas = new int[size];
+        Random random = new Random();
+        for (int i = 0; i < size; i++)
+        {
+            Mas[i] = random.Next(-10000, 10001);
+        }
+        return Mas;
+    }
+
+    public static int[] GetArrayCopy(int[] original)
+    {
+        return (int[])original.Clone();
+    }
+
+    public static void PrintArray(int[] Massiv)
+    {
+        Console.WriteLine("массив:");
+        if (Massiv.Length <= 10)
+        {
+            foreach (int i in Massiv)
+            {
+                Console.Write("{0} ", i);
+            }
+        }
+        else
+        {
+            Console.WriteLine("ошибка, массив не может иметь более 10 элементов");
+        }
+        Console.WriteLine();
+    }
+
+    public static int[] ArrayGnomych(int[] originalArray)
+    {
+        int[] array = GetArrayCopy(originalArray);
+        int index = 0;
+        int n = array.Length;
+        while (index < n)
+        {
+            if (index == 0 || array[index] >= array[index - 1])
+            {
+                index++;
+            }
+            else
+            {
+                int element = array[index];
+                array[index] = array[index - 1];
+                array[index - 1] = element;
+
+                index--;
+            }
+        }
+        return array;
+    }
+
+    public static TimeSpan ArrayGnomychTime(int[] originalArray)
+    {
+        int[] array = GetArrayCopy(originalArray);
+        Stopwatch timer1 = Stopwatch.StartNew();
+        ArrayGnomych(array);
+        timer1.Stop();
+        return timer1.Elapsed;
+    }
+
+    public static int[] ArrayShell(int[] originalArray)
+    {
+        int[] array = GetArrayCopy(originalArray);
+        int n = array.Length;
+
+        for (int gap = n / 2; gap > 0; gap /= 2)
+        {
+            for (int i = gap; i < n; i++)
+            {
+                int temp = array[i];
+                int j;
+
+                for (j = i; j >= gap && array[j - gap] > temp; j -= gap)
+                {
+                    array[j] = array[j - gap];
+                }
+
+                array[j] = temp;
+            }
+        }
+        return array;
+    }
+
+    public static TimeSpan ArrayShellTime(int[] originalArray)
+    {
+        int[] array = GetArrayCopy(originalArray);
+        Stopwatch timer2 = Stopwatch.StartNew();
+        ArrayShell(array);
+        timer2.Stop();
+
+        return timer2.Elapsed;
+    }
+
+    public static bool Konsol(bool uslovie)
+    {
+        Console.WriteLine("ВОЗМОЖНЫЕ ДЕЙСТВИЯ:");
+        Console.WriteLine("(1) отгадай ответ");
+        Console.WriteLine("(2) об авторе");
+        Console.WriteLine("(3) сортировка массива ");
+        Console.WriteLine("(4) выход");
+        Console.Write("выберите действие: ");
+
+        if (int.TryParse(Console.ReadLine(), out int nomer))
+        {
+            switch (nomer)
+            {
+                case 1:
+                    Igra();
+                    break;
+                case 2:
+                    Information();
+                    break;
+                case 3:
+                    Massiv();
+                    break;
+                case 4:
+                    uslovie = Over(uslovie);
+                    break;
+                default:
+                    Console.WriteLine("Неверный номер действия!");
+                    break;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ошибка!");
+        }
+
+        return uslovie;
+    }
+}
